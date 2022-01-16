@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Response
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
-from ..db.models import User
+from ..db.models import User, Reply, Like
 from ..db.connection import connect_db
 from ..schemas.user import UserSchema, UserResSchema
 from ..auth.token import get_current_user
@@ -37,14 +38,22 @@ def create_user(user: UserSchema, db: Session = Depends(connect_db)):
     return {"message": f"Created new user {user.username}"}
 
 
-@router.get("/", response_model=UserResSchema)
+# @router.get("/", response_model=UserResSchema)
+@router.get("/")
 def get_user(
     current_user: dict = Depends(get_current_user), db: Session = Depends(connect_db)
 ):
     """
     Retrieve user information. Meant to be used for displaying user's profile.
     """
-    user = db.query(User).filter(User.id == current_user.id).first()
+    user = (
+        db.query(User, func.count(Like.reply_id).label("likes"))
+        .outerjoin(Reply, Reply.author_id == User.id)
+        .outerjoin(Like, Like.reply_id == Reply.id)
+        .group_by(User.id)
+        .filter(User.id == current_user.id)
+        .first()
+    )
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -57,6 +66,7 @@ def get_user(
 def close_account(
     current_user: dict = Depends(get_current_user), db: Session = Depends(connect_db)
 ):
+    """Deletes the current user's account"""
     user_query = db.query(User).filter(User.id == current_user.id)
     user = user_query.first()
 

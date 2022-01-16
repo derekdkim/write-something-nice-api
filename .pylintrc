@@ -1,2 +1,4 @@
+[MASTER]
+extension-pkg-whitelist=pydantic
 [MESSAGES CONTROL]
-disable=R0903
+disable=R0903,C0114,E0402,C0103

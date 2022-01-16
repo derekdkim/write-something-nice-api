@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     pg_password: str
     pg_port: str
     pg_db_name: str
+    pg_test_db_name: str
     jwt_secret_key: str
     jwt_algo: str
     jwt_exp_minutes: int

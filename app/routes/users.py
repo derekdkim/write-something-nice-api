@@ -35,11 +35,10 @@ def create_user(user: UserSchema, db: Session = Depends(connect_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return {"message": f"Created new user {user.username}"}
+    return {"message": f"Created new user {user.username}", "id": new_user.id}
 
 
 @router.get("/", response_model=UserProfileSchema)
-# @router.get("/")
 def get_user(
     current_user: dict = Depends(get_current_user), db: Session = Depends(connect_db)
 ):

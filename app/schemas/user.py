@@ -1,12 +1,17 @@
-from pydantic import BaseModel
 from datetime import datetime
+from pydantic import BaseModel
+
 
 class UserSchema(BaseModel):
-    """Schema for User"""
+    """Schema for user."""
+
     username: str
     password: str
 
+
 class UserResSchema(BaseModel):
+    """Response Schema for user. Excludes password but returns other information."""
+
     username: str
     created_at: datetime
     id: int
@@ -14,4 +19,5 @@ class UserResSchema(BaseModel):
 
     class Config:
         """Adds compatibility with SQLAlchemy"""
+
         orm_mode = True

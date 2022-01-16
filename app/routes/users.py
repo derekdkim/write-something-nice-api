@@ -21,7 +21,7 @@ def create_user(user: UserSchema, db: Session = Depends(connect_db)):
 
     db -- current database connection through SQLAlchemy
     """
-    duplicate = db.query(User).filter(User.username == user.username)
+    duplicate = db.query(User).filter(User.username == user.username).first()
     if duplicate:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -39,31 +39,31 @@ def create_user(user: UserSchema, db: Session = Depends(connect_db)):
 
 @router.get("/", response_model=UserResSchema)
 def get_user(
-    current_user_id: int = Depends(get_current_user), db: Session = Depends(connect_db)
+    current_user: dict = Depends(get_current_user), db: Session = Depends(connect_db)
 ):
     """
     Retrieve user information. Meant to be used for displaying user's profile.
     """
-    user = db.query(User).filter(User.id == current_user_id).first()
+    user = db.query(User).filter(User.id == current_user.id).first()
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Cannot find user with {current_user_id}",
+            detail=f"Cannot find user with {current_user.id}",
         )
     return user
 
 
 @router.delete("/close-account", status_code=status.HTTP_204_NO_CONTENT)
 def close_account(
-    current_user_id: int = Depends(get_current_user), db: Session = Depends(connect_db)
+    current_user: dict = Depends(get_current_user), db: Session = Depends(connect_db)
 ):
-    user_query = db.query(User).filter(User.id == current_user_id)
+    user_query = db.query(User).filter(User.id == current_user.id)
     user = user_query.first()
 
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Cannot find user with id: {current_user_id}",
+            detail=f"Cannot find user with id: {current_user.id}",
         )
 
     user_query.delete(synchronize_session=False)

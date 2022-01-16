@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi.responses import JSONResponse
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -24,5 +25,20 @@ def login(
         )
 
     token = create_access_token({"id": ref_user.id, "username": ref_user.username})
+    response = JSONResponse(content={"message": "logged in", "token": token})
+    response.set_cookie(key="wsn-session", value=token)
+    return response
 
-    return {"token": token}
+
+@router.post("/logout")
+def logout():
+    """Logs out user by clearing their access cookie"""
+    try:
+        response = JSONResponse(content={"message": "User logged out"})
+        response.delete_cookie(key="wsn-session")
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error: Something went wrong while logging out",
+        )
+    return response

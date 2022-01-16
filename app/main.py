@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from .db import models, connection
+from .routes import users
 
 app = FastAPI()
 
@@ -18,3 +20,5 @@ app.add_middleware(
 )
 
 models.Base.metadata.create_all(bind=connection.engine)
+
+app.include_router(users.router)

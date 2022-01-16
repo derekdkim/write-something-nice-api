@@ -25,11 +25,11 @@ def verify_access_token(token: str, auth_exception):
     """Verify the validity of JWT"""
     try:
         payload = jwt.decode(token, env.jwt_secret_key, algorithms=[env.jwt_algo])
-        id: str = payload.get("user_id")
+        user_id: str = payload.get("user_id")
 
-        if id is None:
+        if user_id is None:
             raise auth_exception
-        token_data = TokenPayload(id=id)
+        token_data = TokenPayload(id=user_id)
     except JWTError:
         raise auth_exception
 

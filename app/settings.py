@@ -4,7 +4,7 @@ from pydantic import BaseSettings
 
 class Settings(BaseSettings):
     """
-    Schema for environment variables. 
+    Schema for environment variables.
     Reads variables in .env located in the project root.
     The variables must follow this schema with key names being in all caps.
     """

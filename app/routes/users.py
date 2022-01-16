@@ -4,7 +4,7 @@ from sqlalchemy import func
 
 from ..db.models import User, Reply, Like
 from ..db.connection import connect_db
-from ..schemas.user import UserSchema, UserResSchema
+from ..schemas.user import UserSchema, UserProfileSchema
 from ..auth.token import get_current_user
 from ..auth.helper import get_pw_hash
 
@@ -38,8 +38,8 @@ def create_user(user: UserSchema, db: Session = Depends(connect_db)):
     return {"message": f"Created new user {user.username}"}
 
 
-# @router.get("/", response_model=UserResSchema)
-@router.get("/")
+@router.get("/", response_model=UserProfileSchema)
+# @router.get("/")
 def get_user(
     current_user: dict = Depends(get_current_user), db: Session = Depends(connect_db)
 ):

@@ -57,7 +57,7 @@ def like_reply(
             except:
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=f"Error: Something went wrong while liking the reply,",
+                    detail="Error: Something went wrong while liking the reply,",
                 )
     else:
         if not like_result:

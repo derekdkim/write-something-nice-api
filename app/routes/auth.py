@@ -23,9 +23,6 @@ def login(
             detail="Invalid username or password.",
         )
 
-    # if not verify_pw(user.password, ref_user.password):
-    #     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Invalid username or password.")
-
     token = create_access_token({"id": ref_user.id, "username": ref_user.username})
 
     return {"token": token}

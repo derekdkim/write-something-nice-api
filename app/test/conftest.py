@@ -4,8 +4,6 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.auth.token import create_access_token, verify_access_token
-
 from ..main import app
 from ..db.connection import connect_db, Base
 from ..settings import env
@@ -49,10 +47,11 @@ def setup_client(session):
 
 
 # Auth Fixtures
+# Fixtures are duplicated for each user as many interactions require more than one user
 
-
-@pytest.fixture(name="t_user")
-def test_user(client):
+# User 0
+@pytest.fixture(name="test_user", scope="module")
+def create_test_user(client):
     """Create test user for login endpoint"""
     user_input = {"username": "tester0", "password": "testing"}
     res = client.post("users/new", json=user_input)
@@ -64,12 +63,74 @@ def test_user(client):
     new_user["password"] = user_input["password"]
     return new_user
 
-@pytest.fixture(name="token")
-def create_token(t_user):
-    """Creates new JWT for a specific user"""
-    return create_access_token({"username": t_user['username'], "id": t_user['id']})
 
-@pytest.fixture(name="curr_user")
-def authorized_client(token):
-    """Returns token contents, mocking the cookie payload decode"""
-    return verify_access_token(token)
+# User 1
+@pytest.fixture(name="other_user", scope="module")
+def create_test_user1(client):
+    """Create test user for login endpoint"""
+    user_input = {"username": "tester1", "password": "testing"}
+    res = client.post("users/new", json=user_input)
+
+    assert res.status_code == 201
+
+    new_user = res.json()
+    new_user["username"] = user_input["username"]
+    new_user["password"] = user_input["password"]
+    return new_user
+
+
+# User 0
+@pytest.fixture(name="curr_user_cookie")
+def login_with_test_user(client, test_user):
+    """Login with test user and return cookie"""
+    res = client.post("/login", data=test_user)
+
+    assert res.status_code == 200
+
+    cookie = {"wsn-session": res.json()["token"]}
+
+    return cookie
+
+
+# User 1
+@pytest.fixture(name="other_user_cookie")
+def login_with_test_user1(client, other_user):
+    """Login with test user and return cookie"""
+    res = client.post("/login", data=other_user)
+
+    assert res.status_code == 200
+
+    cookie = {"wsn-session": res.json()["token"]}
+
+    return cookie
+
+
+# Post Fixtures
+
+
+@pytest.fixture(name="post_content", scope="module")
+def create_post_input():
+    """Returns generic post content for tests"""
+    return {"title": "My Post Title", "content": "My Post Content."}
+
+# User 0
+@pytest.fixture(name="new_post")
+def create_new_post(client, curr_user_cookie, post_content):
+    """Create new post for tests"""
+    res = client.post("/posts/new", json=post_content, cookies=curr_user_cookie)
+
+    assert res.status_code == 201
+    assert res.json()["title"] == post_content["title"]
+
+    return res.json()
+
+# User 1
+@pytest.fixture(name="other_new_post")
+def create_new_post1(client, other_user_cookie, post_content):
+    """Create new post for tests"""
+    res = client.post("/posts/new", json=post_content, cookies=other_user_cookie)
+
+    assert res.status_code == 201
+    assert res.json()["title"] == post_content["title"]
+
+    return res.json()

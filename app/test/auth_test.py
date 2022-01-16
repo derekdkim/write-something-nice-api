@@ -12,9 +12,9 @@ def test_register_user(client):
     assert res.json()["message"] == "Created new user test"
 
 
-def test_login(client, t_user):
+def test_login(client, test_user):
     """Tests user login"""
-    res = client.post("/login", data=t_user)
+    res = client.post("/login", data=test_user)
 
     # Check payload
     token = res.cookies.get("wsn-session")
@@ -22,7 +22,7 @@ def test_login(client, t_user):
     username: str = payload.get("username")
 
     assert res.status_code == 200
-    assert username == t_user["username"]
+    assert username == test_user["username"]
 
 
 @pytest.mark.parametrize(
@@ -42,9 +42,8 @@ def test_login_fail(client, username, password, status_code):
     assert res.status_code == status_code
 
 
-# def test_logout(client):
-#     """Test case for logging out"""
-#     res = client.post(
-#         "/logout",
+def test_logout(client, curr_user_cookie):
+    """Test case for logging out"""
+    res = client.post("/logout", cookies=curr_user_cookie)
 
-#     )
+    assert res.status_code == 200

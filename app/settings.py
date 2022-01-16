@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     pg_db_name: str
     jwt_secret_key: str
     jwt_algo: str
-    jwt_exp_minutes: str
+    jwt_exp_minutes: int
 
     class Config:
         """Reads .env file"""

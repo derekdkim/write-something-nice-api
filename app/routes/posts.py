@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Response
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import func
@@ -58,6 +58,7 @@ def get_other_posts(
 
     return posts
 
+
 @router.get("/random", response_model=PostResSchema)
 def get_random_post(
     db: Session = Depends(connect_db), current_user: dict = Depends(get_current_user)
@@ -101,3 +102,55 @@ def create_post(
             detail="Error: Failed to create new post.",
         )
     return new_post
+
+
+@router.put("/{post_id}", response_model=PostResSchema)
+def update_post(
+    post_id: int,
+    post: PostBaseSchema,
+    db: Session = Depends(connect_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """Edit the user's own post"""
+    ref_post_query = db.query(Post).filter(Post.id == post_id)
+    ref_post = ref_post_query.first()
+    if ref_post is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Error: No post found with id {post_id}",
+        )
+    if int(ref_post.author_id) != int(current_user.id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Error: User must be the author to update this post.",
+        )
+
+    ref_post_query.update(post.dict(), synchronize_session=False)
+    db.commit()
+    db.refresh(ref_post)
+    return ref_post
+
+
+@router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_post(
+    post_id: int,
+    db: Session = Depends(connect_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """Delete the user's own post"""
+    ref_post_query = db.query(Post).filter(Post.id == post_id)
+    ref_post = ref_post_query.first()
+    if ref_post is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Error: No post found with id {post_id}",
+        )
+    if int(ref_post.author_id) != int(current_user.id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Error: User must be the author to delete this post.",
+        )
+
+    ref_post_query.delete(synchronize_session=False)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

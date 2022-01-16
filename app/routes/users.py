@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Response
 from sqlalchemy.orm import Session
 
 from ..db.models import User
@@ -68,4 +68,4 @@ def close_account(
 
     user_query.delete(synchronize_session=False)
     db.commit()
-    return {"message": f"Successfully deleted user {user.username}"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

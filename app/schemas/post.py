@@ -14,6 +14,7 @@ class PostResSchema(PostBaseSchema):
 
     created_at: datetime
     author_id: int
+    id: int
 
     class Config:
         """Allows schema to be compatible with SQLAlchemy"""

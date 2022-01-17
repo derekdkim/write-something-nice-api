@@ -7,7 +7,10 @@ from .routes import users, auth, posts, replies, likes
 app = FastAPI()
 
 origins = [
-    "*"
+    "https://www.google.com",
+    "http://localhost",
+    "http://localhost:8080",
+    "http://207.161.14.88"
 ]
 
 app.add_middleware(

@@ -10,6 +10,10 @@ from ..auth.token import create_access_token
 
 router = APIRouter(tags=["Authentication"])
 
+@router.get("/")
+def welcome():
+    """Returns welcome message to check if API is working"""
+    return "Write Somthing Nice API is running"
 
 @router.post("/login")
 def login(

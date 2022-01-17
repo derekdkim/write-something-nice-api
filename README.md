@@ -5,7 +5,7 @@ Tech Stack:
 - Client: Vue.js (TypeScript)
 - REST API: FastAPI (Python), SQLAlchemy, Starlette + `pytest` (testing)
 - Database: PostgreSQL
-- Hosting: AWS EC2
+- Deployment: Linux VM (AWS EC2), NGINX, Gunicorn
 
 ## Introduction
 
@@ -26,7 +26,15 @@ It's a very simple CRUD application based around 4 database tables:
 
 ![Relationships](./docs/db_tables.png)
 
+## Deployment
+
+This API and PostgreSQL Database are currently hosted on a Linux virtual machine on AWS EC2.
+
 ## Usage
+
+### Production
+
+1. Make requests to `http://3.98.137.192/`
 
 ### Locally
 
@@ -34,3 +42,7 @@ It's a very simple CRUD application based around 4 database tables:
 2. `pip install -r requirements.txt`
 3. Set up environment variables according to the Pydantic schema in `config.py`.
 4. `uvicorn app.main:app`
+
+## Documentation
+
+Visit the [Documentation Page](http://3.98.137.192/docs) for this project on FastAPI Swagger Docs.
